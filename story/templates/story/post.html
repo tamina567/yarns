@@ -1,0 +1,8 @@
+<h1>Post</h1>
+
+{% if error_message %}<p><strong>{{error_message}}</p></strong> {% endif %}
+
+<p>
+{{post.description}} <br/>
+by: {{post.owner.name}}
+</p>
