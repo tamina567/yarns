@@ -5,6 +5,9 @@ from django.views import generic
 from django.contrib.auth import authenticate, login
 from django.core.files.storage import FileSystemStorage
 
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
+
 from .models import User, Post
 from .forms import PostForm
 
@@ -33,4 +36,20 @@ def upload_post(request):
       return HttpResponseRedirect(reverse('story:index'))
   else:
     form = PostForm()
-  return render(request, 'story/upload_form.html', {'form': form})
+    return render(request, 'story/upload_form.html', {'form': form})
+
+def register(request):
+  """
+  Registers a new User.
+  """
+  if request.method == 'POST':
+    form = UserCreationForm(request.POST, request.FILES)
+    if form.is_valid():
+      form.save()
+      return HttpResponseRedirect(reverse('story:index'))
+    else:
+      # TODO Add in error handling. 
+      return None
+  else:
+    form = UserCreationForm()
+    return render(request, 'story/register_form.html', {'form': form})
