@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Register</title>
+</head>
+<body>
+  <h1>Register</h1>
+  <form method="post" action="{% url 'story:register' %}">
+    {% csrf_token %}
+
+    {% if form.errors %}
+    <p>There's some errors in the form!</p>
+    {% endif %}
+
+    {{ form }}
+    <input type="submit" value="Register">
+  </form>
+
+</body>
+</html>
