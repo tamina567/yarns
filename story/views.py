@@ -4,9 +4,11 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
 from django.views import generic
 from django.contrib.auth import authenticate, login
+from django.contrib.auth.decorators import login_required
 from django.core.files.storage import FileSystemStorage
 from django.template.response import TemplateResponse
 
+import datetime
 
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
@@ -28,6 +30,7 @@ class IndexView(generic.ListView):
   def get_queryset(self):
     return Post.objects.order_by('-date_posted')[:5]
 
+@login_required
 def upload_post(request):
   """
   The upload view allows users to upload Posts.
@@ -37,6 +40,9 @@ def upload_post(request):
   if request.method == 'POST':
     form = PostForm(request.POST, request.FILES)
     if form.is_valid():
+      form = form.save(commit=False)
+      form.date_posted = datetime.datetime.now()
+      form.owner =  request.user
       form.save()
       return HttpResponseRedirect(redirect_to)
   else:

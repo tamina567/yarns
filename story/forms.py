@@ -5,4 +5,4 @@ from .models import Post
 class PostForm(forms.ModelForm):
   class Meta:
     model = Post
-    fields = ['owner', 'date_posted', 'description', 'file']
+    exclude = ['owner', 'date_posted']
