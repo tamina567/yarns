@@ -25,34 +25,16 @@
 	<body class="homepage">
 		<!-- Header -->
 		<div id="header-wrapper">
-
       {% include "story/navbar.html" %}
-
-			<!-- <div id="banner">
-				<div class="container">
-					<div class="row">
-						<section class="12u">
-							<header>
-								<h2>Welcome to Yarns</h2>
-								<span class="byline">
-                                    Continue scrolling to see our latest posts.
-                                </span>
-							</header>
-							<a href="#" class="button button-alt">Read More</a>
-						</section>
-					</div>
-				</div>
-			</div> -->
-
 		</div>
 		<!-- Header Ends Here -->
 
 		<!-- Page -->
-
         	<div id="page">
             	<div class="container">
                 	<div class="row">
                     	<div id="content" class="8u">
+                            <h1>Posts</h1>
                             {% for post in latest_post_list %}
                             <article>
                                 <header>
@@ -67,42 +49,6 @@
                                 <a href="#" class="button button-style1">Read More</a>
                             </article>
                             {% endfor %}
-
-                            <div id="two-column">
-                            	<div class="row">
-                                    <section class="6u">
-                                        <h2>Tristique eleifend</h2>
-                                        <p>Donec leo, vivamus fermentum nibh in augue praesent a lacus at urna congue rutrum. Quisque dictum. Integer nisl risus, sagittis convallis, rutrum id, elementum congue, nibh.</p>
-                                        <ul class="style3">
-                                            <li class="first">
-                                                <p><span class="date"><a href="#">20012.10.25</a></span><span class="heading-title">Etiam posuere augue</span></p>
-                                                <p><a href="#">Integer nisl risus, sagittis convallis, rutrum id, elementum congue, nibh. Suspendisse dictum porta lectus.</a></p>
-                                            </li>
-                                            <li>
-                                                <p><span class="date"><a href="#">20012.10.25</a></span><span class="heading-title">Etiam posuere augue</span></p>
-                                                <p><a href="#">Quisque dictum. Integer nisl risus, sagittis elementum congue, nibh. Suspendisse dictum porta lectus.</a></p>
-                                            </li>
-                                        </ul>
-                                    </section>
-                                    <section class="6u">
-                                        <h2>Donec dictum metus</h2>
-                                        <ul class="style4">
-                                            <li class="first">
-                                                <h3>Mauris vulputate dolor sit amet</h3>
-                                                <p><a href="#">Aliquam lacinia metus ut elit. Suspendisse iaculis mauris nec lorem. Donec leo, vivamus fermentum nibh in augue praesent a lacus at urna congue rutrum.</a></p>
-                                            </li>
-                                            <li>
-                                                <h3>Fusce ultrices fringilla metus</h3>
-                                                <p><a href="#">In hac habitasse platea dictumst. Nullam id ante eget dui vulputate aliquam. Donec leo, vivamus fermentum nibh in augue praesent a lacus at urna congue rutrum.</a></p>
-                                            </li>
-                                            <li>
-                                                <h3>Donec dictum metus in sapien</h3>
-                                                <p><a href="#">Donec leo, vivamus fermentum nibh in augue praesent a lacus at urna congue rutrum. Suspendisse sit amet tellus in eros bibendum condimentum.</a> </p>
-                                            </li>
-                                        </ul>
-                                    </section>
-                                </div>
-                            </div>
                         </div>
                     	<div id="sidebar" class="4u">
                         	<div class="row">
