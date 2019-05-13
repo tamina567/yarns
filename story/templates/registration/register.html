@@ -3,8 +3,13 @@
 <head>
   <meta charset="utf-8">
   <title>Register</title>
+  {% include "story/head.html" %}
 </head>
 <body>
+  <div id="header-wrapper">
+    {% include "story/navbar.html" %}
+  </div>
+
   <h1>Register</h1>
   <form method="post" action="{% url 'story:register' %}">
     {% csrf_token %}
