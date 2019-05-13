@@ -13,12 +13,22 @@ import datetime
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
-from .models import User, Post
-from .forms import PostForm
+from .models import UserProfile, Post
+from .forms import PostForm, ProfileForm
+
+class ProfileView(generic.DetailView):
+  model = UserProfile;
+  template_name = 'story/profile.html'
 
 class PostView(generic.DetailView):
   model = Post;
   template_name = 'story/post.html'
+
+  def get_context_data(self, **kwargs):
+      context = super(PostView, self).get_context_data(**kwargs)
+      user = self.object.owner
+      context['profile'] = user.userprofile
+      return context
 
 class IndexView(generic.ListView):
   """
@@ -36,7 +46,8 @@ def upload_post(request):
   The upload view allows users to upload Posts.
   """
   template_name = 'story/upload_form.html'
-  redirect_to = reverse('story:index')
+  redirect_to = 'story:index'
+
   if request.method == 'POST':
     form = PostForm(request.POST, request.FILES)
     if form.is_valid():
@@ -44,24 +55,18 @@ def upload_post(request):
       form.date_posted = datetime.datetime.now()
       form.owner =  request.user
       form.save()
-      return HttpResponseRedirect(redirect_to)
+      return render(redirect_to)
   else:
     form = PostForm()
-    return render(request,  template_name, {'form': form})
-
-  current_site = get_current_site(request)
-  context = {
-      'form': form,
-      'site': current_site,
-      'site_name': current_site.name,
-  }
-  return TemplateResponse(request, template_name, context)
+  context = {'form': form}
+  return render(request,  template_name, context)
 
 def register(request):
   """
   Registers a new user.
   """
   template_name = 'registration/register.html'
+  redirect_to = 'story:update_profile'
 
   if request.method == 'POST':
     form = UserCreationForm(request.POST)
@@ -71,16 +76,34 @@ def register(request):
       password = form.cleaned_data['password1']
       user = authenticate(username=username, password=password)
       login(request, user)
-      return HttpResponseRedirect(reverse('story:index'))
+      return redirect(redirect_to)
   else:
     form = UserCreationForm()
-    context = {'form' : form}
-    return render(request, template_name, context)
+  context = {'form' : form}
+  return render(request, template_name, context)
 
-  current_site = get_current_site(request)
-  context = {
-      'form': form,
-      'site': current_site,
-      'site_name': current_site.name,
-  }
-  return TemplateResponse(request, template_name, context)
+@login_required
+def update_profile(request):
+  """
+  Updates the UserProfile for the logged in user. 
+  """
+  template_name = 'story/update_profile.html'
+  redirect_to = 'story:index'
+
+  if request.method == 'POST':
+    p = UserProfile.objects.get(pk=request.user.id)
+    form = ProfileForm(request.POST, instance=p)
+    if form.is_valid():
+      form = form.save(commit=False)
+
+      # Update date_joined if the user profile is new.
+      if p is None:
+        form.date_joined = datetime.datetime.now()
+
+      form.user = request.user
+      form.save()
+      return redirect(redirect_to)
+  else:
+    form = ProfileForm()
+  context = {'form' : form}
+  return render(request, template_name, context)

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Post</title>
+  <title>Profile</title>
   {% include "story/head.html" %}
 </head>
 <body>
@@ -10,13 +10,17 @@
     {% include "story/navbar.html" %}
   </div>
 
-  <h1>Post</h1>
+  <h1>Profile</h1>
 
   {% if error_message %}<p><strong>{{error_message}}</p></strong> {% endif %}
 
-  <p>
-  {{post.description}} <br/>
-  by: {{profile.name}}
-  </p>
+  <p>Name: {{ userprofile.name }}</p>
+  <p>DOB: {{ userprofile.dob }} </p>
+  <p>Gender: {{ userprofile.gender }}</p>
+  <p>Joined on {{ userprofile.date_joined }} </p>
+
+  <p><a href="{% url 'story:update_profile' %}"">Update profile</p>
+
 </body>
+
 </html>

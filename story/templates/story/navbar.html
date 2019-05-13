@@ -4,7 +4,7 @@
         <ul>
             <li class="current_page_item"><a href="/">Homepage</a></li>
             {% if user.is_authenticated %}
-            <li><a href="{% url 'login' %}">{{ user.username }}</a></li>
+            <li><a href="/profile/{{user.id}}">{{ user.username }}</a></li>
             <li><a href="{% url 'story:upload_post' %}">New Post</a></li>
             <li><a href="{% url 'logout' %}">Log out</a></li>
             {% else %}
