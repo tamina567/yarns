@@ -1,8 +1,22 @@
-<h1>Post</h1>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Post</title>
+  {% include "story/head.html" %}
+</head>
+<body>
+  <div id="header-wrapper">
+    {% include "story/navbar.html" %}
+  </div>
 
-{% if error_message %}<p><strong>{{error_message}}</p></strong> {% endif %}
+  <h1>Post</h1>
 
-<p>
-{{post.description}} <br/>
-by: {{post.owner.name}}
-</p>
+  {% if error_message %}<p><strong>{{error_message}}</p></strong> {% endif %}
+
+  <p>
+  {{post.description}} <br/>
+  by: {{post.owner.name}}
+  </p>
+</body>
+</html>
