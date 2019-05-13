@@ -21,30 +21,14 @@
 		<link rel="stylesheet" href="{% static 'story/css/style.css' %}" />
 		<link rel="stylesheet" href="{% static 'story/css/style-desktop.css' %}" />
 	</head>
+
 	<body class="homepage">
 		<!-- Header -->
 		<div id="header-wrapper">
 
-        	<div id="header" class="container">
+      {% include "story/navbar.html" %}
 
-            	<div id="logo"><h1><a href="#">Yarns</a></h1></div>
-                <nav id="nav">
-                    <ul>
-                        <li class="current_page_item"><a href="#">Homepage</a></li>
-                        {% if user.is_authenticated %}
-                        <li><a href="{% url 'login' %}">{{ user.username }}</a></li>
-                        <li><a href="{% url 'story:upload_post' %}">New Post</a></li>
-                        <li><a href="{% url 'logout' %}">Log out</a></li>
-                        {% else %}
-                        <li><a href="{% url 'login' %}">Login</a></li>
-                        <li><a href="{% url 'story:register' %}">Register</a></li>
-                        {% endif %}
-                    </ul>
-                </nav>
-
-            </div>
-
-			<div id="banner">
+			<!-- <div id="banner">
 				<div class="container">
 					<div class="row">
 						<section class="12u">
@@ -58,7 +42,7 @@
 						</section>
 					</div>
 				</div>
-			</div>
+			</div> -->
 
 		</div>
 		<!-- Header Ends Here -->
