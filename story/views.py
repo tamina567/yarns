@@ -18,21 +18,24 @@ from django.contrib.auth.forms import UserCreationForm
 from .models import UserProfile, Post
 from .forms import PostForm, ProfileForm
 
-class ProfileView(generic.DetailView):
-  model = UserProfile;
-  template_name = 'story/profile.html'
 
+@login_required
+def view_profile(request, pk):
+  """
+  Displays the profile for the current user
+  """
+  template_name = 'story/profile.html'
   error_message = "Profile not found."
   redirect_to = "story:update_profile"
 
-  def get(self, request, *args, **kwargs):
-    try:
-        self.object = self.get_object()
-    except Http404:
-        error(request, self.error_message)
-        return redirect(self.redirect_to)
-    context = self.get_context_data(object=self.object)
-    return self.render_to_response(context)
+  try:
+    p = User.objects.get(pk=pk).userprofile
+  except AttributeError:
+    error(request, error_message)
+    return redirect(redirect_to)
+
+  context = {'userprofile' : p}
+  return render(request, template_name, context)
 
 class PostView(generic.DetailView):
   model = Post;
@@ -105,8 +108,13 @@ def update_profile(request):
   redirect_to = 'story:index'
 
   if request.method == 'POST':
-    p = UserProfile.objects.get(pk=request.user.id)
-    form = ProfileForm(request.POST, instance=p)
+    try:
+      p = User.objects.get(pk=request.user.id).userprofile
+      form = ProfileForm(request.POST, instance=p)
+    except AttributeError:
+      p = None
+      form = ProfileForm(request.POST)
+
     if form.is_valid():
       form = form.save(commit=False)
 
