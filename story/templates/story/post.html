@@ -11,12 +11,12 @@
   </div>
 
   <h1>Post</h1>
+  <p>
+    By: <a href="/profile/{{profile.user_id}}">{{ profile.name }}</a>
+  </p>
 
   {% if error_message %}<p><strong>{{error_message}}</p></strong> {% endif %}
 
-  <p>
-  {{post.description}} <br/>
-  by: {{profile.name}}
-  </p>
 </body>
+  <p> {{post.description}} </p>
 </html>
