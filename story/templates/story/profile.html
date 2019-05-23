@@ -12,14 +12,24 @@
 
   <h1>Profile</h1>
 
-  {% if error_message %}<p><strong>{{error_message}}</p></strong> {% endif %}
+  {% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
 
+  {% if userprofile %}
   <p>Name: {{ userprofile.name }}</p>
   <p>DOB: {{ userprofile.dob }} </p>
   <p>Gender: {{ userprofile.gender }}</p>
   <p>Joined on {{ userprofile.date_joined }} </p>
+  {% endif %}
 
-  <p><a href="{% url 'story:update_profile' %}"">Update profile</p>
+  {% ifequal userprofile.user_id user.id %}
+  <p><a href="{% url 'story:update_profile' %}">Update profile</p>
+  {% endifequal %}
 
 </body>
 

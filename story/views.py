@@ -31,9 +31,10 @@ def view_profile(request, pk):
   try:
     p = User.objects.get(pk=pk).userprofile
   except AttributeError:
+    p = None
     error(request, error_message)
-    return redirect(redirect_to)
-
+    if(pk == request.user.id):
+      return redirect(redirect_to)
   context = {'userprofile' : p}
   return render(request, template_name, context)
 
