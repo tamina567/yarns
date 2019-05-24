@@ -1,5 +1,6 @@
 from django import forms
 
+from django.contrib.auth.models import Group
 from .models import Post, UserProfile
 
 class PostForm(forms.ModelForm):
@@ -11,3 +12,8 @@ class ProfileForm(forms.ModelForm):
   class Meta:
     model = UserProfile
     exclude = ['user', 'date_joined']
+
+class GroupCreationForm(forms.ModelForm):
+  class Meta:
+    model = Group
+    fields = '__all__'

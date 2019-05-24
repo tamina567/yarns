@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Register Group</title>
+  {% include "story/head.html" %}
+</head>
+<body>
+  <div id="header-wrapper">
+    {% include "story/navbar.html" %}
+  </div>
+
+  <h1>Register group</h1>
+  <form method="post" action="{% url 'story:register_group' %}">
+    {% csrf_token %}
+
+    {% if form.errors %}
+    <p>There's some errors in the form!</p>
+    {% endif %}
+
+    {{ form }}
+    <input type="hidden" name="next" value="{{ request.path }}">
+    <input type="submit" value="Register">
+  </form>
+
+</body>
+</html>

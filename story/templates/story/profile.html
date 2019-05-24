@@ -25,9 +25,21 @@
   <p>DOB: {{ userprofile.dob }} </p>
   <p>Gender: {{ userprofile.gender }}</p>
   <p>Joined on {{ userprofile.date_joined }} </p>
+
+    {% if groups %}
+    <p>Groups:
+    <ul class="groups">
+      {% for group in groups %}
+      <li>{{ group }}</li>
+      {% endfor %}
+    </ul>
+    </p>
+    {% endif %}
+
   {% endif %}
 
   {% ifequal userprofile.user_id user.id %}
+  <p><a href="{% url 'story:register_group' %}">Register new group</p>
   <p><a href="{% url 'story:update_profile' %}">Update profile</p>
   {% endifequal %}
 

@@ -16,7 +16,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 
 from .models import UserProfile, Post
-from .forms import PostForm, ProfileForm
+from .forms import PostForm, ProfileForm, GroupCreationForm
 
 
 @login_required
@@ -29,13 +29,15 @@ def view_profile(request, pk):
   redirect_to = "story:update_profile"
 
   try:
-    p = User.objects.get(pk=pk).userprofile
+    user = User.objects.get(pk=pk)
+    p = user.userprofile
+    groups = user.groups.all()
   except AttributeError:
     p = None
     error(request, error_message)
     if(pk == request.user.id):
       return redirect(redirect_to)
-  context = {'userprofile' : p}
+  context = {'userprofile' : p, 'groups' : groups}
   return render(request, template_name, context)
 
 class PostView(generic.DetailView):
@@ -128,5 +130,23 @@ def update_profile(request):
       return redirect(redirect_to)
   else:
     form = ProfileForm()
+  context = {'form' : form}
+  return render(request, template_name, context)
+
+def register_group(request):
+  """
+  Creates a new group.
+  """
+  template_name = 'story/register_group.html'
+  redirect_to = request.POST.get('next', '/')
+
+  if request.method == 'POST':
+    form = GroupCreationForm(request.POST)
+    if form.is_valid():
+      group = form.save()
+      group.user_set.add(request.user)
+      return redirect(redirect_to)
+  else:
+    form = GroupCreationForm()
   context = {'form' : form}
   return render(request, template_name, context)
