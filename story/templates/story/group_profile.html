@@ -20,25 +20,22 @@
   </ul>
   {% endif %}
 
-  {% if userprofile %}
-  <p>Name: {{ userprofile.name }}</p>
-  <p>DOB: {{ userprofile.dob }} </p>
-  <p>Gender: {{ userprofile.gender }}</p>
-  <p>Joined on {{ userprofile.date_joined }} </p>
+  <p>Name: {{ group.name }}</p>
 
-    {% if groups %}
-    <p>Groups:
-    <ul class="groups">
-      {% for group in groups %}
-      <li><a href="{% url 'story:group_profile' group.id %}">
-        {{ group.name }}
-      </a></li>
-      {% endfor %}
-    </ul>
-    </p>
-    {% endif %}
-
+  {% if users %}
+  <p>Members:
+  <ul class="members">
+    {% for user in users %}
+    <li><a href="{% url 'story:profile' user.user_id %}">
+      {{ user.name }}
+    </a></li>
+    {% endfor %}
+  </ul>
+  </p>
+  {% else %}
+  <p>This group has no members.</p>
   {% endif %}
+
 
   {% ifequal userprofile.user_id user.id %}
   <p><a href="{% url 'story:register_group' %}">Register new group</p>

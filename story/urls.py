@@ -11,4 +11,5 @@ urlpatterns = [
   path('profile/<int:pk>', views.view_profile, name="profile"),
   path('update_profile', views.update_profile, name='update_profile'),
   path('register_group', views.register_group, name='register_group'),
+  path('group/<int:pk>', views.GroupProfileView.as_view(), name='group_profile'),
 ]

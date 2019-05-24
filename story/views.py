@@ -12,7 +12,7 @@ from django.contrib.messages import error
 
 import datetime
 
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.contrib.auth.forms import UserCreationForm
 
 from .models import UserProfile, Post
@@ -39,6 +39,17 @@ def view_profile(request, pk):
       return redirect(redirect_to)
   context = {'userprofile' : p, 'groups' : groups}
   return render(request, template_name, context)
+
+class GroupProfileView(generic.DetailView):
+  model = Group;
+  template_name = 'story/group_profile.html'
+
+  def get_context_data(self, **kwargs):
+    context = super(GroupProfileView, self).get_context_data(**kwargs)
+    users = self.object.user_set.all()
+    profiles = [u.userprofile for u in users]
+    context['users'] = profiles
+    return context
 
 class PostView(generic.DetailView):
   model = Post;
