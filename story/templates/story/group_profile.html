@@ -10,7 +10,7 @@
     {% include "story/navbar.html" %}
   </div>
 
-  <h1>Profile</h1>
+  <h1>Group Profile</h1>
 
   {% if messages %}
   <ul class="messages">
@@ -20,14 +20,18 @@
   </ul>
   {% endif %}
 
-  <p>Name: {{ group.name }}</p>
+  <p>Group Name: {{ group.name }}</p>
 
   {% if users %}
   <p>Members:
   <ul class="members">
     {% for user in users %}
-    <li><a href="{% url 'story:profile' user.user_id %}">
-      {{ user.name }}
+    <li><a href="{% url 'story:profile' user.id %}">
+      {% if user.userprofile %}
+        {{ user.userprofile.name }}
+      {% else %}
+        User {{ user.id }}
+      {% endif %}
     </a></li>
     {% endfor %}
   </ul>
@@ -36,11 +40,7 @@
   <p>This group has no members.</p>
   {% endif %}
 
-
-  {% ifequal userprofile.user_id user.id %}
-  <p><a href="{% url 'story:register_group' %}">Register new group</p>
-  <p><a href="{% url 'story:update_profile' %}">Update profile</p>
-  {% endifequal %}
+  <p><a href="{% url 'story:add_to_group' group.id %}">Add new members</p>
 
 </body>
 

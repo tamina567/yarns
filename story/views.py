@@ -16,7 +16,7 @@ from django.contrib.auth.models import User, Group
 from django.contrib.auth.forms import UserCreationForm
 
 from .models import UserProfile, Post
-from .forms import PostForm, ProfileForm, GroupCreationForm
+from .forms import PostForm, ProfileForm, GroupCreationForm, AddUserToGroupForm
 
 
 @login_required
@@ -34,6 +34,7 @@ def view_profile(request, pk):
     groups = user.groups.all()
   except AttributeError:
     p = None
+    groups = None
     error(request, error_message)
     if(pk == request.user.id):
       return redirect(redirect_to)
@@ -47,8 +48,7 @@ class GroupProfileView(generic.DetailView):
   def get_context_data(self, **kwargs):
     context = super(GroupProfileView, self).get_context_data(**kwargs)
     users = self.object.user_set.all()
-    profiles = [u.userprofile for u in users]
-    context['users'] = profiles
+    context['users'] = users
     return context
 
 class PostView(generic.DetailView):
@@ -160,4 +160,23 @@ def register_group(request):
   else:
     form = GroupCreationForm()
   context = {'form' : form}
+  return render(request, template_name, context)
+
+def add_group_member(request, pk):
+  """
+  Adds a user to a group.
+  """
+  template_name = 'story/add_to_group.html'
+  redirect_to = '/group/' + str(pk)
+  group = Group.objects.get(pk=pk)
+
+  if request.method == 'POST':
+    form = AddUserToGroupForm(request.POST)
+    if form.is_valid():
+        user = form.cleaned_data['joining_user']
+        group.user_set.add(user)
+        return redirect(redirect_to)
+  else:
+    form = AddUserToGroupForm(initial={'user':request.user, 'group':group})
+    context = {'form' : form, 'group' : group}
   return render(request, template_name, context)

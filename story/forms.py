@@ -1,6 +1,6 @@
 from django import forms
 
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import User, Group
 from .models import Post, UserProfile
 
 class PostForm(forms.ModelForm):
@@ -17,3 +17,6 @@ class GroupCreationForm(forms.ModelForm):
   class Meta:
     model = Group
     fields = '__all__'
+
+class AddUserToGroupForm(forms.Form):
+  joining_user = forms.ModelChoiceField(queryset=User.objects.all())
