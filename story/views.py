@@ -1,65 +1,20 @@
-from django.http import HttpResponseRedirect, Http404
-from django.shortcuts import render, redirect
-from django.contrib.sites.shortcuts import get_current_site
-from django.urls import reverse
-from django.views import generic
 from django.contrib.auth import authenticate, login
 from django.contrib.auth.decorators import login_required
-from django.core.files.storage import FileSystemStorage
-from django.template.response import TemplateResponse
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User, Group
 from django.contrib.messages import error
-
+from django.contrib.sites.shortcuts import get_current_site
+from django.core.files.storage import FileSystemStorage
+from django.http import HttpResponseRedirect, Http404
+from django.shortcuts import render, redirect
+from django.template.response import TemplateResponse
+from django.urls import reverse
+from django.views import generic
 
 import datetime
 
-from django.contrib.auth.models import User, Group
-from django.contrib.auth.forms import UserCreationForm
-
 from .models import UserProfile, Post
 from .forms import PostForm, ProfileForm, GroupCreationForm, AddUserToGroupForm
-
-
-@login_required
-def view_profile(request, pk):
-  """
-  Displays the profile for the current user
-  """
-  template_name = 'story/profile.html'
-  error_message = "Profile not found."
-  redirect_to = "story:update_profile"
-
-  try:
-    user = User.objects.get(pk=pk)
-    p = user.userprofile
-    groups = user.groups.all()
-  except AttributeError:
-    p = None
-    groups = None
-    error(request, error_message)
-    if(pk == request.user.id):
-      return redirect(redirect_to)
-  context = {'userprofile' : p, 'groups' : groups}
-  return render(request, template_name, context)
-
-class GroupProfileView(generic.DetailView):
-  model = Group;
-  template_name = 'story/group_profile.html'
-
-  def get_context_data(self, **kwargs):
-    context = super(GroupProfileView, self).get_context_data(**kwargs)
-    users = self.object.user_set.all()
-    context['users'] = users
-    return context
-
-class PostView(generic.DetailView):
-  model = Post;
-  template_name = 'story/post.html'
-
-  def get_context_data(self, **kwargs):
-      context = super(PostView, self).get_context_data(**kwargs)
-      user = self.object.owner
-      context['profile'] = user.userprofile
-      return context
 
 class IndexView(generic.ListView):
   """
@@ -71,10 +26,38 @@ class IndexView(generic.ListView):
   def get_queryset(self):
     return Post.objects.order_by('-date_posted')[:5]
 
+class PostView(generic.DetailView):
+  """
+  Displays a post.
+
+  Arguments:
+  pk : the id of the post to be displayed
+
+  Returns:
+  context{
+    post: the post to be displayed,
+    profile: the profile of the owner of the post
+  }
+  """
+  model = Post;
+  template_name = 'story/post.html'
+
+  def get_context_data(self, **kwargs):
+      context = super(PostView, self).get_context_data(**kwargs)
+      user = self.object.owner
+      context['profile'] = user.userprofile
+      return context
+
 @login_required
 def upload_post(request):
   """
   The upload view allows users to upload Posts.
+
+  For a non-POST request, the PostForm is returned for a user to fill
+  information.
+  For a POST request, the Post is saved.
+  Post owner is the current logged in user,
+  Date posted is the current timestamp.
   """
   template_name = 'story/upload_form.html'
   redirect_to = 'story:index'
@@ -94,7 +77,7 @@ def upload_post(request):
 
 def register(request):
   """
-  Registers a new user.
+  A new user is registered and logged in.
   """
   template_name = 'registration/register.html'
   redirect_to = 'story:update_profile'
@@ -114,9 +97,41 @@ def register(request):
   return render(request, template_name, context)
 
 @login_required
+def view_profile(request, pk):
+  """
+  Displays the profile and groups for the given user.
+
+  Arguments:
+  pk : the id of the user to be displayed
+
+  Returns:
+  context{
+    userprofile: the profile for the user,
+    groups: the groups that the user belongs to
+  }
+  """
+  template_name = 'story/profile.html'
+  error_message = "Profile not found."
+  redirect_to = "story:update_profile"
+
+  try:
+    user = User.objects.get(pk=pk)
+    p = user.userprofile
+    groups = user.groups.all()
+  except AttributeError:
+    p = None
+    groups = None
+    error(request, error_message)
+    if(pk == request.user.id):
+      return redirect(redirect_to)
+  context = {'userprofile' : p, 'groups' : groups}
+  return render(request, template_name, context)
+
+@login_required
 def update_profile(request):
   """
   Updates the UserProfile for the logged in user.
+  A new UserProfile is created for a user if one does not exist already.
   """
   template_name = 'story/update_profile.html'
   redirect_to = 'story:index'
@@ -144,6 +159,30 @@ def update_profile(request):
   context = {'form' : form}
   return render(request, template_name, context)
 
+class GroupProfileView(generic.DetailView):
+  """
+  Displays the profile for the given group and the users that belong to the
+  group.
+
+  Arguments:
+  pk : the id of the group to be displayed
+
+  Returns:
+  context{
+    group: the group to be displayed,
+    users: the users that belong to the group
+  }
+  """
+  model = Group;
+  template_name = 'story/group_profile.html'
+
+  def get_context_data(self, **kwargs):
+    context = super(GroupProfileView, self).get_context_data(**kwargs)
+    users = self.object.user_set.all()
+    context['users'] = users
+    return context
+
+@login_required
 def register_group(request):
   """
   Creates a new group.
@@ -162,9 +201,15 @@ def register_group(request):
   context = {'form' : form}
   return render(request, template_name, context)
 
+@login_required
 def add_group_member(request, pk):
   """
   Adds a user to a group.
+
+  Arguments:
+  pk: The id of the group to add the user to.
+
+  Form contains the joining User.
   """
   template_name = 'story/add_to_group.html'
   redirect_to = '/group/' + str(pk)
