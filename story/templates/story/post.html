@@ -14,9 +14,16 @@
   <p>
     By: <a href="/profile/{{profile.user_id}}">{{ profile.name }}</a>
   </p>
+  <p>At {{post.date_posted}}
 
   {% if error_message %}<p><strong>{{error_message}}</p></strong> {% endif %}
 
 </body>
   <p> {{post.description}} </p>
 </html>
+
+{% ifequal post.owner user %}
+<a href="{% url 'story:edit_post' post.id %}">
+  Edit post
+</a>
+{% endifequal %}

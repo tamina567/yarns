@@ -49,30 +49,40 @@ class PostView(generic.DetailView):
       return context
 
 @login_required
-def upload_post(request):
+def edit_post(request, pk=None):
   """
   The upload view allows users to upload Posts.
 
   For a non-POST request, the PostForm is returned for a user to fill
-  information.
-  For a POST request, the Post is saved.
+  information. For a POST request, the Post is saved.
   Post owner is the current logged in user,
   Date posted is the current timestamp.
   """
-  template_name = 'story/upload_form.html'
   redirect_to = 'story:index'
 
+  if pk:
+    post = Post.objects.get(pk=pk)
+    template_name = 'story/edit_post.html'
+  else:
+    post = None
+    template_name = 'story/upload_form.html'
+
   if request.method == 'POST':
-    form = PostForm(request.POST, request.FILES)
+    if post:
+      form = PostForm(request.POST, request.FILES, instance=post)
+    else:
+      form = PostForm(request.POST, request.FILES)
+
     if form.is_valid():
       form = form.save(commit=False)
-      form.date_posted = datetime.datetime.now()
-      form.owner =  request.user
+      if not post:
+        form.date_posted = datetime.datetime.now()
+        form.owner =  request.user
       form.save()
       return redirect(redirect_to)
   else:
-    form = PostForm()
-  context = {'form': form}
+    form = PostForm(instance=post)
+  context = {'form': form, 'post':post}
   return render(request,  template_name, context)
 
 def register(request):

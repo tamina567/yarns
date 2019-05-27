@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Edit Post</title>
+  {% include "story/head.html" %}
+</head>
+<body>
+  <div id="header-wrapper">
+    {% include "story/navbar.html" %}
+  </div>
+
+  <h1>Upload a post</h1>
+  <form method="post" action="{% url 'story:edit_post' post.id %}">
+    {% csrf_token %}
+
+    {% if form.errors %}
+    <p>There's some errors in the form!</p>
+    {% endif %}
+
+    {{ form }}
+    <input type="submit" value="Upload">
+  </form>
+
+</body>
+</html>
