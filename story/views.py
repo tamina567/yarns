@@ -35,18 +35,11 @@ class PostView(generic.DetailView):
 
   Returns:
   context{
-    post: the post to be displayed,
-    profile: the profile of the owner of the post
+    post: the post to be displayed
   }
   """
   model = Post;
   template_name = 'story/post.html'
-
-  def get_context_data(self, **kwargs):
-      context = super(PostView, self).get_context_data(**kwargs)
-      user = self.object.owner
-      context['profile'] = user.userprofile
-      return context
 
 @login_required
 def edit_post(request, pk=None):
@@ -77,7 +70,7 @@ def edit_post(request, pk=None):
       form = form.save(commit=False)
       if not post:
         form.date_posted = datetime.datetime.now()
-        form.owner =  request.user
+        form.poster =  request.user
       form.save()
       return redirect(redirect_to)
   else:

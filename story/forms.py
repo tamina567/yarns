@@ -6,7 +6,7 @@ from .models import Post, UserProfile
 class PostForm(forms.ModelForm):
   class Meta:
     model = Post
-    exclude = ['owner', 'date_posted']
+    exclude = ['poster', 'date_posted', 'comments']
 
 class ProfileForm(forms.ModelForm):
   class Meta:

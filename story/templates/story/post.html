@@ -12,9 +12,11 @@
 
   <h1>Post</h1>
   <p>
-    By: <a href="/profile/{{profile.user_id}}">{{ profile.name }}</a>
+    Posted by: <a href="/profile/{{profile.user_id}}">
+      {{ post.poster.userprofile.name }}</a>
   </p>
-  <p>At {{post.date_posted}}
+  <p>at {{post.date_posted}} </p>
+  <p>Knower: {{post.knower.name}}</p>
 
   {% if error_message %}<p><strong>{{error_message}}</p></strong> {% endif %}
 
