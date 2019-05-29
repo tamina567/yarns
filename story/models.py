@@ -47,7 +47,7 @@ class Post(models.Model):
   viewed_by = models.CharField(
     max_length = 4,
     choices = view_types,
-    default = 'A',
+    default = 'all',
   )
 
   viewers = models.ManyToManyField(
