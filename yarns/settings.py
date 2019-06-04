@@ -128,5 +128,5 @@ STATIC_URL = '/static/'
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
-    'story.ObjectPermissionsBackend'
+    'story.access.ObjectPermissionsBackend'
 ]

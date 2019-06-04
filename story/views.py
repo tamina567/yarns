@@ -9,12 +9,12 @@ from django.http import HttpResponseRedirect, Http404
 from django.shortcuts import render, redirect
 from django.template.response import TemplateResponse
 from django.urls import reverse
+from django.utils import timezone
 from django.views import generic
-
-import datetime
 
 from .models import UserProfile, Post
 from .forms import PostForm, ProfileForm, GroupCreationForm, AddUserToGroupForm
+from .access import ObjectPermissionsBackend
 
 class IndexView(generic.ListView):
   """
@@ -51,11 +51,18 @@ def edit_post(request, pk=None):
   Post owner is the current logged in user,
   Date posted is the current timestamp.
   """
+
+  error_message = "Access not authorised."
   redirect_to = 'story:index'
 
   if pk:
     post = Post.objects.get(pk=pk)
     template_name = 'story/edit_post.html'
+
+    if not request.user.has_perm('story.change_post', post):
+      error(request, error_message)
+      return redirect(redirect_to)
+
   else:
     post = None
     template_name = 'story/upload_form.html'
@@ -69,7 +76,7 @@ def edit_post(request, pk=None):
     if form.is_valid():
       form = form.save(commit=False)
       if not post:
-        form.date_posted = datetime.datetime.now()
+        form.date_posted = timezone.now()
         form.poster =  request.user
       form.save()
       return redirect(redirect_to)
@@ -152,7 +159,7 @@ def update_profile(request):
 
       # Update date_joined if the user profile is new.
       if p is None:
-        form.date_joined = datetime.datetime.now()
+        form.date_joined = timezone.now()
 
       form.user = request.user
       form.save()

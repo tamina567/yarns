@@ -1,7 +1,7 @@
 class ObjectPermissionsBackend:
   def has_perm(self, user_obj, perm, obj=None):
     if obj is None:
-      return True
+      return False
     if perm == 'story.add_post':
       return True;
     elif perm == 'story.view_post':
