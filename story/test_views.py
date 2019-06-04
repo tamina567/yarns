@@ -7,7 +7,9 @@ from django.urls import reverse
 
 import datetime
 import mock
+import time
 
+from .access import ObjectPermissionsBackend
 from django.contrib.auth.models import User, Group
 from .models import UserProfile, Post
 
@@ -131,17 +133,69 @@ class IndexViewTest(TestCase):
   At the index page, the user can see a list of posts.
   The user should have view permission to see each post.
   """
-
   def setUp(self):
+    self.url = reverse('story:index')
     self.user = User.objects.create(username='user')
-    login(self.client, self.user)
+    self.user2 = User.objects.create(username='user2')
+    self.group1 = Group.objects.create(name='group1')
+    self.group2 = Group.objects.create(name='group2')
+    self.group2.user_set.add(self.user2)
 
-  # TODO implement Index View properly
-  def test_logged_in(self):
-    return True
+  def add_post_viewed_by_all(self, description):
+    return Post.objects.create(
+      description = description,
+      knower = self.group1,
+      viewed_by = 'all',
+      date_posted = timezone.now(),
+      poster = self.user,
+    )
+
+  def add_post_viewed_by_some(self, description, knowers):
+    post = Post.objects.create(
+      description = description,
+      knower = self.group1,
+      viewed_by = 'some',
+      date_posted = timezone.now(),
+      poster = self.user,
+    )
+    post.viewers.add(knowers)
+    return post
 
   def test_logged_out(self):
-    return True
+    self.add_post_viewed_by_all(1)
+    self.add_post_viewed_by_all(2)
+    self.add_post_viewed_by_all(3)
+    self.add_post_viewed_by_all(4)
+    self.add_post_viewed_by_all(5)
+
+    public_posts = ObjectPermissionsBackend().get_viewable_posts(None).order_by('-date_posted')[:5]
+    response = self.client.get(self.url)
+    response_posts = response.context['latest_post_list']
+    self.assertEqual(public_posts.count(), 5)
+    self.assertEqual(response_posts.count(), public_posts.count())
+    self.assertEqual(str(public_posts), str(response_posts))
+
+  def test_post_viewed_by_me(self):
+    # Add posts with group 2 as the viewer
+    self.add_post_viewed_by_some(1, self.group2)
+    self.add_post_viewed_by_some(2, self.group2)
+    self.add_post_viewed_by_some(3, self.group2)
+    self.add_post_viewed_by_some(4, self.group2)
+    self.add_post_viewed_by_some(5, self.group2)
+
+    # User shouldn't be able to view them
+    response = self.client.get(self.url)
+    response_posts = response.context['latest_post_list']
+    self.assertEqual(response_posts.count(), 0)
+
+    # User 2 should be able to view all 5 posts
+    login(self.client, self.user2)
+    response = self.client.get(self.url)
+    response_posts = response.context['latest_post_list']
+    self.assertEqual(response_posts.count(), 5)
+
+    posts = ObjectPermissionsBackend().get_viewable_posts(self.user2).order_by('-date_posted')[:5]
+    self.assertEqual(str(posts), str(response_posts))
 
 class PostViewTest(TestCase):
   """

@@ -24,7 +24,8 @@ class IndexView(generic.ListView):
   context_object_name = 'latest_post_list'
 
   def get_queryset(self):
-    return Post.objects.order_by('-date_posted')[:5]
+    posts = ObjectPermissionsBackend().get_viewable_posts(self.request.user)
+    return posts.order_by('-date_posted')[:5]
 
 class PostView(generic.DetailView):
   """
