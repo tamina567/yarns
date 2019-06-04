@@ -52,7 +52,7 @@ class EditPostViewTest(TestCase):
     }
     return self.client.post(url, form)
 
-  def test_post_view_get(self):
+  def test_edit_post_get(self):
     """
     PostForm is returned for a GET.
     """
@@ -60,7 +60,7 @@ class EditPostViewTest(TestCase):
     self.assertEqual(response.status_code, 200)
     self.assertTrue(response.context['form'])
 
-  def test_post_view_post(self):
+  def test_edit_post_viewed_by_all(self):
     """
     Post is added when form is returned.
     """
@@ -127,6 +127,27 @@ class EditPostViewTest(TestCase):
     post = Post.objects.get(pk=1)
     self.assertNotEqual(post.description, description)
     # TODO an ERROR should be raised here too.
+
+  def test_edit_post_viewed_by_some(self):
+    """
+    Test that the viewers are saved when some viewers are selected.
+    """
+    with self.assertRaises(Post.DoesNotExist):
+      post = Post.objects.get(knower = self.group1.id)
+
+    form = {
+      'description' : "test_edit_post_viewed_by_some",
+      'knower' : self.group1.id,
+      'viewed_by' : 'some',
+      'viewers' : {self.group2.id, self.group1.id},
+    }
+    response = self.client.post(
+                    self.upload_url,
+                    form)
+    post = Post.objects.get(knower = self.group1.id)
+    self.assertIsNotNone(post)
+    self.assertEqual(post.viewers.filter(id = self.group1.id).count(), 1)
+    self.assertEqual(post.viewers.filter(id = self.group2.id).count(), 1)
 
 class IndexViewTest(TestCase):
   """

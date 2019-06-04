@@ -62,7 +62,6 @@ def edit_post(request, pk=None):
   Post owner is the current logged in user,
   Date posted is the current timestamp.
   """
-
   error_message = "Access not authorised."
   redirect_to = 'story:index'
 
@@ -85,11 +84,12 @@ def edit_post(request, pk=None):
       form = PostForm(request.POST, request.FILES)
 
     if form.is_valid():
-      form = form.save(commit=False)
+      p = form.save(commit=False)
       if not post:
-        form.date_posted = timezone.now()
-        form.poster =  request.user
-      form.save()
+        p.date_posted = timezone.now()
+        p.poster =  request.user
+      p.save()
+      form.save_m2m()
       return redirect(redirect_to)
   else:
     form = PostForm(instance=post)
