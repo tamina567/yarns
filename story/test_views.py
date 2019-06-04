@@ -149,21 +149,99 @@ class PostViewTest(TestCase):
   Only users in the 'viewers' of a post can access this view.
   """
   def setUp(self):
+    self.url = reverse('story:post', kwargs={'pk':1})
+    self.upload_url = reverse('story:upload_post')
     self.user = User.objects.create(username='user')
+    self.group1 = Group.objects.create(name='group1')
+    self.group1.user_set.add(self.user)
+    self.group2 = Group.objects.create(name='group2')
+
+  def test_post_viewed_by_all(self):
+    """
+    Should be accessed by anybody.
+    """
+    # Upload a public Post
+    # Create a post viewed by group 2
+    post = Post.objects.create(
+      description = 'test_post_viewed_by_all',
+      knower = self.group1,
+      viewed_by = 'all',
+      date_posted = timezone.now()
+    )
+    logout(self.client)
+
+    response = self.client.get(self.url)
+    self.assertEqual(response.status_code, HttpResponse.status_code)
+    self.assertEqual(response.context['post'], post)
+
+  def test_post_viewed_by_some_unauthorised(self):
+    """
+    A post is viewed by some can only be accessed by users that
+    are in a group in viewers.
+    """
+    # Create a post viewed by group 2
+    self.post = Post.objects.create(
+      description = 'test_post_viewed_by_some_authorised',
+      knower = self.group1,
+      viewed_by = 'some',
+      date_posted = timezone.now()
+    )
+    self.post.viewers.add(self.group2)
+
+    # Log in as user, not a member of group 2
     login(self.client, self.user)
 
-  def test_post_view(self):
-    return True
+    response = self.client.get(self.url)
+    self.assertEqual(response.status_code, HttpResponse.status_code)
+    with self.assertRaises(KeyError):
+     post = response.context['post']
+    error_message = str(list(response.context['messages'])[0])
+    self.assertEqual(error_message, "You are not authorised to view this post.")
 
-  # TODO implement Index View properly
-  def test_logged_in(self):
-    return True
+  def test_post_viewed_by_some_logged_out(self):
+    """
+    A post is viewed by some can only be accessed by users that
+    are in a group in viewers.
+    """
+    # Create a post viewed by 'some'
+    self.post = Post.objects.create(
+      description = 'test_post_viewed_by_some_authorised',
+      knower = self.group1,
+      viewed_by = 'some',
+      date_posted = timezone.now()
+    )
 
-  def test_logged_out(self):
-    return True
+    logout(self.client)
 
-  def test_non_viewer(self):
-    return True
+    response = self.client.get(self.url)
+    self.assertEqual(response.status_code, HttpResponse.status_code)
+    with self.assertRaises(KeyError):
+     post = response.context['post']
+    error_message = str(list(response.context['messages'])[0])
+    self.assertEqual(error_message, "You are not authorised to view this post.")
+
+  def test_post_viewed_by_some_authorised(self):
+    """
+    A post is viewed by some can only be accessed by users that
+    are in a group in viewers.
+    """
+    # Create a post viewed by group 1
+    self.post = Post.objects.create(
+      description = 'test_post_viewed_by_some_authorised',
+      knower = self.group1,
+      viewed_by = 'some',
+      date_posted = timezone.now()
+    )
+    self.post.viewers.add(self.group1)
+
+    # Log in as user, a member of group1
+    login(self.client, self.user)
+
+    # Check the post can be accessed
+    response = self.client.get(self.url)
+    self.assertEqual(response.status_code, HttpResponse.status_code)
+    post = response.context['post']
+    self.assertEqual(post, self.post)
 
 class RegisterViewTest(TestCase):
   """

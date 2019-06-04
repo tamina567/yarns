@@ -28,7 +28,7 @@ class IndexView(generic.ListView):
 
 class PostView(generic.DetailView):
   """
-  Displays a post.
+  Displays a post if the requesting user has permission.
 
   Arguments:
   pk : the id of the post to be displayed
@@ -40,6 +40,16 @@ class PostView(generic.DetailView):
   """
   model = Post;
   template_name = 'story/post.html'
+  error_message = {
+    'unauthorised' : 'You are not authorised to view this post.'
+  }
+
+  def get_object(self, queryset=None):
+    obj = super(PostView, self).get_object(queryset=queryset)
+    if not self.request.user.has_perm('story.view_post', obj):
+        error(self.request, self.error_message['unauthorised'])
+        return None
+    return obj
 
 @login_required
 def edit_post(request, pk=None):

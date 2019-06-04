@@ -11,13 +11,24 @@
   </div>
 
   <h1>Post</h1>
+
+  {% if messages %}
+  <ul class="messages">
+    {% for message in messages %}
+    <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+
+  {% if post %}
   <p>
     Posted by: <a href="/profile/{{profile.user_id}}">
       {{ post.poster.userprofile.name }}</a>
   </p>
   <p>at {{post.date_posted}} </p>
   <p>Knower: {{post.knower.name}}</p>
-
+  {% endif %}
+  
   {% if error_message %}<p><strong>{{error_message}}</p></strong> {% endif %}
 
 </body>
